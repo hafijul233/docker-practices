@@ -8,7 +8,6 @@ docker image build . --no-cache -t plain-nginx
 * `--no-cache` option every time the build start gets fresh copy from docker hub. 
 * `-t` option create a unique tag insisted of using image hash ID.
 
-
 ## How to run this image using container
 
 ```shell
