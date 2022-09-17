@@ -19,7 +19,8 @@ services:
     environment:
       - NGINXUSER=laravel
       - NGINXGROUP=laravel
-
+    depends_on:
+      - mysql
   mysql: 
     container_name: database
 
@@ -38,21 +39,20 @@ services:
     #   - ./mysql:/var/lib/mysql
 
     restart: always
-
-  phpmyadmin:
-    container_name: phpmyadmin
-
-    image: phpmyadmin
+  
+  adminer:
+    container_name: adminer
+    
+    image: adminer
     
     restart: always
-    
-    ports:
-      - 8081:80
 
+    ports:
+      - 8080:8080
+    
     environment:
       - MYSQL_USER=laravel
       - MYSQL_PASSWORD=secret
       - MYSQL_ROOT_PASSWORD=secret
-
     depends_on:
-      - mysql
+      - nginx
