@@ -15,3 +15,8 @@ docker run --rm -p 4000:3000 json-server
 ```
 * `--rm` option tells docker engine to remove the contianer after it stop.
 * `json-server` argument is the image unique tag setup when builoding this image.
+
+```shell
+docker run --rm -p 4000:3000 json-server alt.json
+```
+* `alt.json` argument overwrite the default entrypoint argument
