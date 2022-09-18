@@ -2,7 +2,7 @@ version: '3'
 
 services:
   nginx:
-    container_name: webapp
+    container_name: Nginx
 
     build:
       context: .
@@ -16,15 +16,13 @@ services:
 
     restart: always
 
-    environment:
-      - NGINXUSER=laravel
-      - NGINXGROUP=laravel
     depends_on:
       - mysql
+  
   mysql: 
-    container_name: database
+    container_name: MariaDB
 
-    image: mysql:latest
+    image: mariadb:10.5
 
     ports:
       - 3307:3306
@@ -35,24 +33,19 @@ services:
       - MYSQL_PASSWORD=secret
       - MYSQL_ROOT_PASSWORD=secret
 
-    # volumes:
-    #   - ./mysql:/var/lib/mysql
+    volumes:
+      - ./mysql:/var/lib/mysql
 
     restart: always
   
-  adminer:
-    container_name: adminer
+  php:
+    container_name: PHP
     
-    image: adminer
+    build:
+      context: .
+      dockerfile: php.dockerfile
     
-    restart: always
+    volumes:
+      - ./src:/var/www/html
 
-    ports:
-      - 8080:8080
-    
-    environment:
-      - MYSQL_USER=laravel
-      - MYSQL_PASSWORD=secret
-      - MYSQL_ROOT_PASSWORD=secret
-    depends_on:
-      - nginx
+    restart: always
