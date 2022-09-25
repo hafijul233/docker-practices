@@ -1,4 +1,4 @@
 .vscode
 .idea
-php-container/mysql/
-laravel-container/mysql/
+php/mysql/
+laravel/mysql/
