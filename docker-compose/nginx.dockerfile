@@ -3,7 +3,7 @@ FROM nginx:stable-alpine
 ENV NGINXUSER=hafijul233
 ENV NGINXGROUP=hafijul233
 
-RUN mkdir -p /var/www/html/public
+RUN mkdir -p /var/www/html
 
 ADD nginx/default.conf /etc/nginx/conf.d/default.conf
 

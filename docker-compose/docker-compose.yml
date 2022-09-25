@@ -10,7 +10,7 @@ services:
       - 4000:80
     volumes:
       - ./src:/var/www/html
-    restart: always
+
     depends_on:
       - mysql
       - php
@@ -36,4 +36,23 @@ services:
       dockerfile: php.dockerfile
     volumes:
       - ./src:/var/www/html
-    restart: always
+
+  composer:
+    container_name: Composer
+    build:
+      context: .
+      dockerfile: composer.dockerfile
+    volumes:
+      - ./src:/var/www/html
+    working_dir: /var/www/html
+  
+#  artisan:
+#    build:
+#      context: .
+#      dockerfile: php.dockerfile
+#    volumes:
+#      - ./src:/var/www/html
+#    working_dir: /var/www/html
+#    depends_on:
+#      - mysql
+#    entrypoint: ["php", "/var/www/html/artisan"]
