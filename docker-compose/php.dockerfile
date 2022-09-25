@@ -14,4 +14,4 @@ RUN docker-php-ext-install pdo pdo_mysql opcache
 
 ADD opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 
-CMD [ "php-fpm", "-y", "/usr/local/etc/php-fpm.d/www.conf", "-R" ]
+CMD ["php-fpm", "-y", "/usr/local/etc/php-fpm.conf", "-R"]
