@@ -1,6 +1,0 @@
-FROM composer:2
-
-ENV COMPOSERUSER=hafijul233
-ENV COMPOSERGROUP=hafijul233
-
-RUN adduser -g ${COMPOSERGROUP} -s /bin/sh -D ${COMPOSERUSER}
