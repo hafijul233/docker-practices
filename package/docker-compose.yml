@@ -1,0 +1,67 @@
+version: '3'
+
+services:
+  nginx:
+    container_name: Nginx
+    build:
+      context: .
+      dockerfile: nginx.dockerfile
+    ports:
+      - 4000:80
+    volumes:
+      - ./src:/var/www/html
+
+    depends_on:
+      - mysql
+      - php
+
+  mysql:
+    container_name: MariaDB
+    image: mariadb:10.5
+    ports:
+      - 3307:3306
+    environment:
+      - MYSQL_DATABASE=laravel
+      - MYSQL_USER=laravel
+      - MYSQL_PASSWORD=secret
+      - MYSQL_ROOT_PASSWORD=secret
+    volumes:
+      - ./mysql:/var/lib/mysql
+    restart: always
+
+  php:
+    container_name: PHP
+    build:
+      context: .
+      dockerfile: php.dockerfile
+    volumes:
+      - ./src:/var/www/html
+
+  composer:
+    container_name: Composer
+    build:
+      context: .
+      dockerfile: composer.dockerfile
+    volumes:
+      - ./src:/var/www/html
+    working_dir: /var/www/html
+
+  artisan:
+    container_name: Artisan
+    build:
+      context: .
+      dockerfile: php.dockerfile
+    volumes:
+      - ./src:/var/www/html
+    working_dir: /var/www/html
+    depends_on:
+      - mysql
+    entrypoint: [ "php", "/var/www/html/artisan" ]
+
+  npm:
+    container_name: NPM
+    image: node:current-alpine
+    volumes:
+      - ./src:/var/www/html
+    working_dir: /var/www/html
+    entrypoint: [ "npm" ]
