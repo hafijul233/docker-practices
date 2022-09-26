@@ -45,7 +45,7 @@ services:
     volumes:
       - ./src:/var/www/html
     working_dir: /var/www/html
-  
+
   artisan:
     container_name: Artisan
     build:
@@ -56,4 +56,12 @@ services:
     working_dir: /var/www/html
     depends_on:
       - mysql
-    entrypoint: ["php", "/var/www/html/artisan"]
+    entrypoint: [ "php", "/var/www/html/artisan" ]
+
+  npm:
+    container_name: NPM
+    image: node:current-alpine
+    volumes:
+      - ./src:/var/www/html
+    working_dir: /var/www/html
+    entrypoint: [ "npm" ]
