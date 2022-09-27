@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+  nginx:
+    container_name: Prod_Nginx
+    build:
+      context: .
+      dockerfile: nginx.prod.dockerfile
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./src:/var/www/html
+
+    depends_on:
+      - mysql
+      - php
+
+  php:
+    container_name: Prod_PHP
+    build:
+      context: .
+      dockerfile: php.prod.dockerfile
+    volumes:
+      - ./src:/var/www/html
