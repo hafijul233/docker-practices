@@ -7,7 +7,6 @@ ENV APP_NAME laraedit
 ENV APP_EMAIL app@laraedit.com
 ENV APP_DOMAIN laraedit.com
 ENV DEBIAN_FRONTEND noninteractive
-ENV PHP_VERSION "8"
 
 #install
 RUN apk --update --no-cache add wget \
