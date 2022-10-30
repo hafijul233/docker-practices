@@ -1,5 +1,4 @@
 FROM ubuntu:22.04
-
 MAINTAINER Derek Bourgeois <derek@ibourgeois.com>
 
 # set some environment variables
@@ -10,17 +9,19 @@ ENV DEBIAN_FRONTEND noninteractive
 
 # upgrade the container
 RUN apt-get update && \
-    apt-get upgrade -y
+    apt-get upgrade --assume-yes
 
 # install some prerequisites
-RUN apt-get install --assume-yes apt-utils software-properties-common curl build-essential \
-    dos2unix gcc git libmcrypt4 libpcre3-dev make python2.7-dev \
-    python-pip re2c unattended-upgrades whois vim libnotify-bin wget \
-     locales libpng-dev rsync unzip imagemagick zip
-     # debconf-utils
+RUN apt-get update && apt-get install --assume-yes --no-install-recommends apt-utils
+
+RUN apt-get install --assume-yes software-properties-common curl \
+    build-essential libmcrypt4 libpcre3-dev python-pip wget zip \
+    unattended-upgrades whois vim libnotify-bin locales \
+    cron libpng-dev unzip
 
 # add some repositories
 RUN curl --silent --location https://deb.nodesource.com/setup_18.x | bash - && \
+    add-apt-repository ppa:ondrej/nginx-mainline && \
     add-apt-repository ppa:ondrej/php && \
     apt-get update
 
@@ -28,7 +29,7 @@ RUN curl --silent --location https://deb.nodesource.com/setup_18.x | bash - && \
 RUN echo "LC_ALL=en_US.UTF-8" >> /etc/default/locale  && \
     locale-gen en_US.UTF-8  && \
     ln -sf /usr/share/zoneinfo/UTC /etc/localtime
-
+    
 # setup bash
 COPY .bash_aliases /root
 
@@ -49,39 +50,40 @@ VOLUME ["/var/cache/nginx"]
 VOLUME ["/var/log/nginx"]
 
 # install php
-RUN apt-get install --assume-yes --allow-downgrades --allow-remove-essential --allow-change-held-packages php-fpm php-cli php-dev php-pgsql php-sqlite3 php-gd \
-    php-apcu php-curl php-imap php-mysql php-readline php-xdebug php-common \
-    php-mbstring php-xml php-zip php-bcmath php-soap php-imagick
+RUN apt-get install --assume-yes --allow-downgrades --allow-remove-essential --allow-change-held-packages php-fpm php-cli php-gd \
+    php-curl php-imap php-mysql php-readline php-common php-mbstring php-xml php-zip php-bcmath php-soap php-imagick php-intl
+    
 COPY fastcgi_params /etc/nginx/
 RUN mkdir -p /run/php/ && chown -Rf www-data.www-data /run/php
 
-# install node and databases
-RUN apt-get install --assume-yes --allow-downgrades --allow-remove-essential --allow-change-held-packages nodejs sqlite3 libsqlite3-dev
+# install node and databases 
+RUN apt-get install --assume-yes --allow-downgrades --allow-remove-essential --allow-change-held-packages nodejs
 
-# install mysql
+# install mysql 
 RUN echo mysql-server mysql-server/root_password password $DB_PASS | debconf-set-selections;\
     echo mysql-server mysql-server/root_password_again password $DB_PASS | debconf-set-selections;\
     apt-get install --assume-yes mysql-server && \
     echo "[mysqld]" >> /etc/mysql/my.cnf && \
     echo "default_password_lifetime = 0" >> /etc/mysql/my.cnf && \
     sed -i '/^bind-address/s/bind-address.*=.*/bind-address = 0.0.0.0/' /etc/mysql/my.cnf
-RUN /usr/sbin/mysqld & \
-    sleep 10s && \
-    echo "GRANT ALL PRIVILEGES ON *.* TO 'root'@'0.0.0.0';\
-    ALTER USER 'root'@'0.0.0.0' IDENTIFIED BY 'secret';\
-    CREATE USER 'homestead'@'%' IDENTIFIED BY 'secret';\
-    GRANT ALL PRIVILEGES ON *.* TO 'homestead'@'%' WITH GRANT OPTION;\
-    FLUSH PRIVILEGES;\
-    CREATE DATABASE `homestead`;" | mysql
+
+RUN find /var/lib/mysql -exec touch {} \; && service mysql start && \
+    sleep 10s
+#    echo "GRANT ALL PRIVILEGES ON *.* TO root@'0.0.0.0' WITH GRANT OPTION; \
+#    FLUSH PRIVILEGES; \
+#    CREATE USER 'homestead'@'0.0.0.0' IDENTIFIED BY 'secret'; \
+#    GRANT ALL PRIVILEGES ON *.* TO 'homestead'@'0.0.0.0'; \
+#    GRANT ALL PRIVILEGES ON *.* TO 'homestead'@'%'; \
+#    FLUSH PRIVILEGES; \
+#    CREATE DATABASE homestead;" | mysql
+
 VOLUME ["/var/lib/mysql"]
 
 # install composer
 RUN curl -sS https://getcomposer.org/installer | php && \
     mv composer.phar /usr/local/bin/composer && \
     printf "\nPATH=\"~/.composer/vendor/bin:\$PATH\"\n" | tee -a ~/.bashrc
-
-# install gulp
-RUN /usr/bin/npm install -g gulp
+    
 
 # install supervisor
 RUN apt-get install --assume-yes supervisor && \
@@ -99,12 +101,6 @@ RUN apt-get remove --purge --assume-yes software-properties-common && \
     rm -rf /var/lib/apt/lists/* && \
     rm -rf /usr/share/man/?? && \
     rm -rf /usr/share/man/??_*
-
-RUN php -v
-
-RUN php -m
-
-RUN nginx -v
 
 # expose ports
 EXPOSE 80 443 3306

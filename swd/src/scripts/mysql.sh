@@ -3,12 +3,13 @@
 export DEBIAN_FRONTEND=noninteractive
 
 # install mysql
-debconf-set-selections <<< "mysql-community-server mysql-community-server/data-dir select ''"
-debconf-set-selections <<< "mysql-community-server mysql-community-server/root-pass password secret"
-debconf-set-selections <<< "mysql-community-server mysql-community-server/re-root-pass password secret"
+debconf-set-selections <<<"mysql-community-server mysql-community-server/data-dir select ''"
+debconf-set-selections <<<"mysql-community-server mysql-community-server/root-pass password secret"
+debconf-set-selections <<<"mysql-community-server mysql-community-server/re-root-pass password secret"
 apt-get install -y mysql-server
 
-echo "default_password_lifetime = 0" >> /etc/mysql/my.cnf
+echo "[mysqld]" >>/etc/mysql/my.cnf
+echo "default_password_lifetime = 0" >>/etc/mysql/my.cnf
 
 sed -i '/^bind-address/s/bind-address.*=.*/bind-address = 0.0.0.0/' /etc/mysql/my.cnf
 
