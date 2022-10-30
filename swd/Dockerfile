@@ -68,14 +68,16 @@ RUN echo mysql-server mysql-server/root_password password $DB_PASS | debconf-set
     sed -i '/^bind-address/s/bind-address.*=.*/bind-address = 0.0.0.0/' /etc/mysql/my.cnf
 
 RUN find /var/lib/mysql -exec touch {} \; && service mysql start && \
-    sleep 10s
-#    echo "GRANT ALL PRIVILEGES ON *.* TO root@'0.0.0.0' WITH GRANT OPTION; \
-#    FLUSH PRIVILEGES; \
-#    CREATE USER 'homestead'@'0.0.0.0' IDENTIFIED BY 'secret'; \
-#    GRANT ALL PRIVILEGES ON *.* TO 'homestead'@'0.0.0.0'; \
-#    GRANT ALL PRIVILEGES ON *.* TO 'homestead'@'%'; \
-#    FLUSH PRIVILEGES; \
-#    CREATE DATABASE homestead;" | mysql
+    sleep 10s && \
+    echo "GRANT ALL PRIVILEGES ON *.* TO root@'localhost' WITH GRANT OPTION; \
+    FLUSH PRIVILEGES; \
+    CREATE USER 'homestead'@'%' IDENTIFIED BY 'secret'; \
+    GRANT ALL PRIVILEGES ON *.* TO 'homestead'@'%'  WITH GRANT OPTION; \
+    FLUSH PRIVILEGES; \
+    CREATE DATABASE homestead;" | mysql
+
+#    before flush previlage
+# GRANT ALL PRIVILEGES ON *.* TO 'homestead'@'%'; \
 
 VOLUME ["/var/lib/mysql"]
 
